@@ -1,6 +1,6 @@
 require "bundler/gem_tasks"
-require 'rspec/core'
-require 'rspec/core/rake_task'
+require "rspec/core"
+require "rspec/core/rake_task"
 
 Rake::Task["spec"].clear
 RSpec::Core::RakeTask.new(:spec) do |t|
@@ -14,5 +14,3 @@ task :coverage do
   Rake::Task["spec"].execute
 end
 task :default => :spec
-
-
