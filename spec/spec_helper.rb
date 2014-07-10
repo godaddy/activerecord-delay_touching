@@ -7,3 +7,16 @@ ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
 load File.dirname(__FILE__) + '/support/schema.rb'
 require File.dirname(__FILE__) + '/support/models.rb'
+
+if ENV["COVERAGE"]
+  require_relative 'rcov_exclude_list.rb'
+  exlist = Dir.glob(@exclude_list)
+  require 'simplecov'
+  require 'simplecov-rcov'
+  SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
+  SimpleCov.start do
+    exlist.each do |p|
+      add_filter p
+    end
+  end
+end
