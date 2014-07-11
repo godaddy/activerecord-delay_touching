@@ -1,3 +1,3 @@
 @exclude_list = [
-  'spec/**/*.rb'
+  #'spec/**/*.rb'
 ]
