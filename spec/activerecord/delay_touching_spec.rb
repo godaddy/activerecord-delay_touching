@@ -24,16 +24,25 @@ describe Activerecord::DelayTouching do
     end
   end
 
-  it 'immediately sets updated_at on the in-memory instance' do
+  it 'sets updated_at on the in-memory instance when it eventually touches the record' do
+    original_time = new_time = nil
+
     Timecop.freeze(2014, 7, 4, 12, 0, 0) do
+      original_time = Time.current
       person.touch
     end
+
     Timecop.freeze(2014, 7, 10, 12, 0, 0) do
+      new_time = Time.current
       ActiveRecord::Base.delay_touching do
         person.touch
-        expect(person.updated_at).to eq(Time.now)
+        expect(person.updated_at).to eq(original_time)
+        expect(person.changed?).to be_falsey
       end
     end
+
+    expect(person.updated_at).to eq(new_time)
+    expect(person.changed?).to be_falsey
   end
 
   it 'does not mark the instance as changed when touch is called' do

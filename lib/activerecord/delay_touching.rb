@@ -9,13 +9,13 @@ module ActiveRecord
     def touch(name = nil)
       if self.class.delay_touching? && !try(:no_touching?)
         DelayTouching.add_record(self, name)
-
-        current_time = current_time_from_proper_timezone
-        attributes = timestamp_attributes_for_update_in_model
-        attributes << name if name
-        attributes.each { |attr| write_attribute(attr, current_time) }
-        @changed_attributes.except!(*changes.keys)
-
+        #
+        # current_time = current_time_from_proper_timezone
+        # attributes = timestamp_attributes_for_update_in_model
+        # attributes << name if name
+        # attributes.each { |attr| write_attribute(attr, current_time) }
+        # @changed_attributes.except!(*changes.keys)
+        #
         true
       else
         super
@@ -85,9 +85,19 @@ module ActiveRecord
       attributes = records.first.send(:timestamp_attributes_for_update_in_model)
       attributes << attr if attr
 
-      unless attributes.empty?
+      if attributes.present?
         current_time = records.first.send(:current_time_from_proper_timezone)
-        changes = Hash[attributes.map { |attr| [ attr, current_time ] }]
+        changes = {}
+
+        attributes.each do |column|
+          column = column.to_s
+          changes[column] = current_time
+          records.each do |record|
+            record.send(:write_attribute, column, current_time)
+            record.instance_variable_get(:@changed_attributes).except!(*changes.keys)
+          end
+        end
+
         klass.unscoped.where(klass.primary_key => records).update_all(changes)
       end
       state.updated attr, records
