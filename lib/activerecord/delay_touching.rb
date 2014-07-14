@@ -9,13 +9,6 @@ module ActiveRecord
     def touch(name = nil)
       if self.class.delay_touching? && !try(:no_touching?)
         DelayTouching.add_record(self, name)
-        #
-        # current_time = current_time_from_proper_timezone
-        # attributes = timestamp_attributes_for_update_in_model
-        # attributes << name if name
-        # attributes.each { |attr| write_attribute(attr, current_time) }
-        # @changed_attributes.except!(*changes.keys)
-        #
         true
       else
         super
