@@ -86,8 +86,10 @@ module ActiveRecord
           column = column.to_s
           changes[column] = current_time
           records.each do |record|
-            record.send(:write_attribute, column, current_time)
-            record.instance_variable_get(:@changed_attributes).except!(*changes.keys)
+            record.instance_eval do
+              write_attribute column, current_time
+              @changed_attributes.except!(*changes.keys)
+            end
           end
         end
 
