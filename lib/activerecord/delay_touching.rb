@@ -31,7 +31,7 @@ module ActiveRecord
         DelayTouching.call &block
       end
 
-      # Is delayed touching currently enabled?
+      # Are we currently executing in a delay_touching block?
       def delay_touching?
         DelayTouching.state.nesting > 0
       end
