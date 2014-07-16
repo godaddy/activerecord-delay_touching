@@ -1,8 +1,10 @@
 require "activerecord/delay_touching/version"
 
-# Per-thread tracking of the touch state
 module ActiveRecord
   module DelayTouching
+
+    # Tracking of the touch state. This class has no class-level data, so you can
+    # store per-thread instances in thread-local variables.
     class State
       attr_accessor :nesting
 
@@ -28,7 +30,7 @@ module ActiveRecord
       #   ],
       # ]
       def records_by_attrs_and_class
-        @records.map {|attrs, records| [attrs, records.group_by(&:class)]}
+        @records.map { |attrs, records| [attrs, records.group_by(&:class)] }
       end
 
       def more_records?
