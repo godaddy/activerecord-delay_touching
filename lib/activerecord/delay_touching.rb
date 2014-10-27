@@ -101,6 +101,4 @@ module ActiveRecord
   end
 end
 
-ActiveRecord::Base.class_eval do
-  include ActiveRecord::DelayTouching
-end
+ActiveRecord::Base.include ActiveRecord::DelayTouching
