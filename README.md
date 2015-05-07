@@ -15,6 +15,11 @@ Add this line to your application's Gemfile:
 
     gem 'activerecord-delay_touching'
 
+ActiveRecord introduced some changes in version 4.2 that require a different version of this gem. 
+To load this gem for use with ActiveRecord ***prior to version 4.2***, use the following:
+
+	gem 'activerecord-delay_touching', "~> 0.0.1"
+
 And then execute:
 
     $ bundle
@@ -22,6 +27,7 @@ And then execute:
 Or install it yourself:
 
     $ gem install activerecord-delay_touching
+
 
 ## Usage
 

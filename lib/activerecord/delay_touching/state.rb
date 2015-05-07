@@ -37,14 +37,25 @@ module ActiveRecord
         @records.present?
       end
 
-      def add_record(record, column)
-        @records[column] += [ record ] unless @already_updated_records[column].include?(record)
+      def add_record(record, *columns)
+        normalize_columns(columns).each do |column|
+          @records[column] += [ record ] unless @already_updated_records[column].include?(record)
+        end
       end
 
       def clear_records
         @records.clear
         @already_updated_records.clear
       end
+
+      private
+
+      def normalize_columns(columns)
+        columns = columns.flatten
+        columns << nil unless columns.any?
+        columns
+      end
+
     end
   end
 end
