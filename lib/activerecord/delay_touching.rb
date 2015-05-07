@@ -6,9 +6,9 @@ module ActiveRecord
     extend ActiveSupport::Concern
 
     # Override ActiveRecord::Base#touch.
-    def touch(name = nil)
+    def touch(*names)
       if self.class.delay_touching? && !try(:no_touching?)
-        DelayTouching.add_record(self, name)
+        DelayTouching.add_record(self, names)
         true
       else
         super
