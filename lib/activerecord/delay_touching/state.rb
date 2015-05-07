@@ -37,14 +37,18 @@ module ActiveRecord
         @records.present?
       end
 
-      def add_record(record, column)
-        @records[column] += [ record ] unless @already_updated_records[column].include?(record)
+      def add_record(record, *columns)
+        columns << nil if columns.empty? #if no arguments are passed, we will use nil to infer default column
+        columns.each do |column|
+          @records[column] += [ record ] unless @already_updated_records[column].include?(record)
+        end
       end
 
       def clear_records
         @records.clear
         @already_updated_records.clear
       end
+
     end
   end
 end
