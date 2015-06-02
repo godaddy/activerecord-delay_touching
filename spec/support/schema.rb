@@ -16,4 +16,11 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 
+  create_table :pictures, :force => true do |t|
+    t.string :name
+    t.string :owner_type
+    t.integer :owner_id
+
+    t.timestamps
+  end
 end
