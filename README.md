@@ -1,5 +1,7 @@
 # Activerecord::DelayTouching
 
+> **Note:** this version supports ActiveRecord 3.2 through 4.1 only. For ActiveRecord 4.2+, please see the Master branch.
+
 Batch up your ActiveRecord "touch" operations for better performance.
 
 When you want to invalidate a cache in Rails, you use `touch: true`. But when
@@ -13,7 +15,7 @@ round-trips as possible. Instead of N touches you get 1 touch.
 
 Add this line to your application's Gemfile:
 
-    gem 'activerecord-delay_touching'
+    gem 'activerecord-delay_touching', '~> 0.0.3'
 
 And then execute:
 
@@ -21,7 +23,7 @@ And then execute:
 
 Or install it yourself:
 
-    $ gem install activerecord-delay_touching
+    $ gem install activerecord-delay_touching -v 0.0.3
 
 ## Usage
 
