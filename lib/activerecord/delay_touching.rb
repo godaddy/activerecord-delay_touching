@@ -7,7 +7,7 @@ module ActiveRecord
 
     # Override ActiveRecord::Base#touch.
     def touch(name = nil)
-      if self.class.delay_touching? && !try(:no_touching?)
+      if self.class.delay_touching? && (!respond_to?(:no_touching?) || !try(:no_touching?))
         DelayTouching.add_record(self, name)
         true
       else
@@ -41,8 +41,8 @@ module ActiveRecord
       Thread.current[:delay_touching_state] ||= State.new
     end
 
-    class << self
-      delegate :add_record, to: :state
+    def self.add_record(record, column)
+      state.add_record(record, column)
     end
 
     # Start delaying all touches. When done, apply them. (Unless nested.)
@@ -101,4 +101,6 @@ module ActiveRecord
   end
 end
 
-ActiveRecord::Base.include ActiveRecord::DelayTouching
+ActiveRecord::Base.class_eval do
+  include ActiveRecord::DelayTouching
+end
