@@ -125,6 +125,15 @@ describe Activerecord::DelayTouching do
     end
   end
 
+  it 'enters an infinite loop on polymorphic association raising an exception before create' do
+    person = Person.new(name: 'Foo')
+    person.pictures.build(owner: person, name: 'foo')
+    person.pictures.build(owner: person, name: 'error')
+    ActiveRecord::Base.delay_touching do
+      person.save
+    end
+  end
+
   context 'touch: true' do
     before do
       person.pets << pet1
