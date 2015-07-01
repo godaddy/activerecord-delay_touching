@@ -86,6 +86,7 @@ module ActiveRecord
           column = column.to_s
           changes[column] = current_time
           records.each do |record|
+            next if record.destroyed?
             record.instance_eval do
               write_attribute column, current_time
               @changed_attributes.except!(*changes.keys)
