@@ -16,4 +16,18 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 
+  create_table :posts, force: true do |t|
+    t.timestamps null: false
+  end
+
+  create_table :users, force: true do |t|
+    t.timestamps null: false
+  end
+
+  create_table :comments, force: true do |t|
+    t.integer :post_id
+    t.integer :user_id
+    t.timestamps null: false
+  end
+
 end

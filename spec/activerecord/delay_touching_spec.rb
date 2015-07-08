@@ -151,6 +151,28 @@ describe Activerecord::DelayTouching do
     end
   end
 
+  context 'dependent deletes' do
+
+    let(:post) { Post.create! }
+    let(:user) { User.create! }
+    let(:comment) { Comment.create! }
+
+    before do
+      post.comments << comment
+      user.comments << comment
+    end
+
+    it 'does not attempt to touch deleted records' do
+      expect do
+        ActiveRecord::Base.delay_touching do
+          post.destroy
+        end
+      end.not_to raise_error
+      expect(post.destroyed?).to eq true
+    end
+
+  end
+
   def expect_updates(tables)
     expected_sql = tables.map do |entry|
       if entry.kind_of?(Hash)
