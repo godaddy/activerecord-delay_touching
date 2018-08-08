@@ -34,7 +34,8 @@ module ActiveRecord
       end
 
       def more_records?
-        @records.present?
+        # Since an empty set is still a value we have to also check that our values are present
+        @records.present? && @records.values.all?(&:present?)
       end
 
       def add_record(record, *columns)
