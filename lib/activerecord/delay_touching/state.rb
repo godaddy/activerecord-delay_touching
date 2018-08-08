@@ -50,8 +50,8 @@ module ActiveRecord
       end
       
       def remove_unpersisted_records!
-        @records.each do |attr, records|
-          records.keep_if(&:persisted?)
+        @records.each do |attr, set|
+          set.keep_if(&:persisted?)
         end
       end
     end
