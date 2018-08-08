@@ -60,9 +60,10 @@ module ActiveRecord
 
     # Apply the touches that were delayed.
     def self.apply
-      # If we don't do this then an infinite loop is possible due to how Set#subtract and ActiveRecord::Core#== work
-      state.remove_unpersisted_records!
       begin
+        # If we don't do this then an infinite loop is possible due to how Set#subtract and ActiveRecord::Core#== work
+        state.remove_unpersisted_records!
+
         ActiveRecord::Base.transaction do
           state.records_by_attrs_and_class.each do |attr, classes_and_records|
             classes_and_records.each do |klass, records|
