@@ -75,6 +75,7 @@ module ActiveRecord
 
     # Touch the specified records--non-empty set of instances of the same class.
     def self.touch_records(attr, klass, records)
+      # If we don't do this then an infinite loop is possible due to how Set#subtract and ActiveRecord::Core#== work
       state.remove_unpersisted_records!
       attributes = records.first.send(:timestamp_attributes_for_update_in_model)
       attributes << attr if attr
@@ -87,6 +88,7 @@ module ActiveRecord
           column = column.to_s
           changes[column] = current_time
           records.each do |record|
+            # Don't bother if destroyed or not-saved
             next unless record.persisted?
             record.instance_eval do
               write_attribute column, current_time
