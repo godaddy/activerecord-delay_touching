@@ -60,6 +60,8 @@ module ActiveRecord
 
     # Apply the touches that were delayed.
     def self.apply
+      # If we don't do this then an infinite loop is possible due to how Set#subtract and ActiveRecord::Core#== work
+      state.remove_unpersisted_records!
       begin
         ActiveRecord::Base.transaction do
           state.records_by_attrs_and_class.each do |attr, classes_and_records|
@@ -75,8 +77,6 @@ module ActiveRecord
 
     # Touch the specified records--non-empty set of instances of the same class.
     def self.touch_records(attr, klass, records)
-      # If we don't do this then an infinite loop is possible due to how Set#subtract and ActiveRecord::Core#== work
-      state.remove_unpersisted_records!
       attributes = records.first.send(:timestamp_attributes_for_update_in_model)
       attributes << attr if attr
 
