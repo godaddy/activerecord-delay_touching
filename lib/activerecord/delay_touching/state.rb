@@ -51,7 +51,8 @@ module ActiveRecord
       end
 
       def remove_unpersisted_records!
-        @records.each do |attr, set|
+        @records.each do |_, set|
+          set.instance_variable_get(:@hash).rehash
           set.keep_if(&:persisted?)
         end
       end
