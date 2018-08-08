@@ -48,7 +48,7 @@ module ActiveRecord
         @records.clear
         @already_updated_records.clear
       end
-      
+
       def remove_unpersisted_records!
         @records.each do |attr, set|
           set.keep_if(&:persisted?)
