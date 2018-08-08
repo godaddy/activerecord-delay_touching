@@ -61,6 +61,8 @@ module ActiveRecord
     # Apply the touches that were delayed.
     def self.apply
       begin
+        state.remove_unpersisted_records!
+
         ActiveRecord::Base.transaction do
           state.records_by_attrs_and_class.each do |attr, classes_and_records|
             classes_and_records.each do |klass, records|
@@ -86,7 +88,8 @@ module ActiveRecord
           column = column.to_s
           changes[column] = current_time
           records.each do |record|
-            next if record.destroyed?
+            # Don't bother if destroyed or not-saved
+            next unless record.persisted?
             record.instance_eval do
               write_attribute column, current_time
               @changed_attributes.except!(*changes.keys)

@@ -49,6 +49,18 @@ module ActiveRecord
         @already_updated_records.clear
       end
 
+      # If we don't do this then an infinite loop is possible due to how 
+      # Set#subtract and ActiveRecord::Core#== work internally, ActiveRecord lazily syncs
+      # transaction state after rollback, which may change in-memory state of key objects,
+      # which requires that the hash be rekeyed.
+      def remove_unpersisted_records!
+        @records.each do |attr, set|
+          set.each(&:persisted?)
+          set.instance_variable_get(:@hash).rehash
+          set.keep_if(&:persisted?)
+          @records.delete attr if set.empty?
+        end
+      end
     end
   end
 end
