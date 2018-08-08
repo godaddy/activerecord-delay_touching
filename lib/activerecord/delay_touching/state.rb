@@ -34,8 +34,7 @@ module ActiveRecord
       end
 
       def more_records?
-        # Since an empty set is still a value we have to also check that our values are present
-        @records.present? && @records.values.all?(&:present?)
+        @records.present?
       end
 
       def add_record(record, *columns)
@@ -54,6 +53,7 @@ module ActiveRecord
         @records.each do |_, set|
           set.instance_variable_get(:@hash).rehash
           set.keep_if(&:persisted?)
+          @records.delete attr if set.empty?
         end
       end
     end
