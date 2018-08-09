@@ -61,7 +61,6 @@ module ActiveRecord
     # Apply the touches that were delayed.
     def self.apply
       begin
-        # If we don't do this then an infinite loop is possible due to how Set#subtract and ActiveRecord::Core#== work
         state.remove_unpersisted_records!
 
         ActiveRecord::Base.transaction do
