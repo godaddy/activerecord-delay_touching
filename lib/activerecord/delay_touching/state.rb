@@ -49,6 +49,9 @@ module ActiveRecord
         @already_updated_records.clear
       end
 
+      # If we don't do this then an infinite loop is possible due to how 
+      # Set#subtract and ActiveRecord::Core#== work with the in memory changes 
+      # from a rollback and active record sync
       def remove_unpersisted_records!
         @records.each do |_, set|
           set.instance_variable_get(:@hash).rehash
