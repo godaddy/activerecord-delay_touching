@@ -53,7 +53,7 @@ module ActiveRecord
       # Set#subtract and ActiveRecord::Core#== work with the in memory changes 
       # from a rollback and active record sync
       def remove_unpersisted_records!
-        @records.each do |_, set|
+        @records.each do |attr, set|
           set.instance_variable_get(:@hash).rehash
           set.keep_if(&:persisted?)
           @records.delete attr if set.empty?
