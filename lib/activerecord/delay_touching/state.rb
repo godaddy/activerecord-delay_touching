@@ -55,6 +55,7 @@ module ActiveRecord
       # which requires that the hash be rekeyed.
       def remove_unpersisted_records!
         @records.each do |attr, set|
+          set.each(&:persisted?)
           set.instance_variable_get(:@hash).rehash
           set.keep_if(&:persisted?)
           @records.delete attr if set.empty?
