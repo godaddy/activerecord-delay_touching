@@ -61,8 +61,6 @@ module ActiveRecord
     # Apply the touches that were delayed.
     def self.apply
       begin
-        state.remove_unpersisted_records!
-
         ActiveRecord::Base.transaction do
           state.records_by_attrs_and_class.each do |attr, classes_and_records|
             classes_and_records.each do |klass, records|
