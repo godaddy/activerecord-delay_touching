@@ -173,6 +173,30 @@ describe Activerecord::DelayTouching do
 
   end
 
+  context 'persistence fails and rolls back transaction' do
+
+    it 'does not infinitely loop' do
+      updates = 0
+      allow(ActiveRecord::Base.connection).to receive(:update).and_wrap_original do |m, *args|
+        updates = updates + 1
+        raise StandardError, 'Too many updates - likely infinite loop detected' if updates > 1
+
+        m.call(*args)
+      end
+
+      ActiveRecord::Base.delay_touching do
+        ActiveRecord::Base.transaction do
+          # write and touch any new record
+          record = Post.create!
+          record.touch
+          raise ActiveRecord::Rollback
+        end
+      end
+
+    end
+
+  end
+
   def expect_updates(tables)
     expected_sql = tables.map do |entry|
       if entry.kind_of?(Hash)

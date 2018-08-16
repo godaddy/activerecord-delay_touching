@@ -49,6 +49,36 @@ module ActiveRecord
         @already_updated_records.clear
       end
 
+      # If we don't do this then an infinite loop is possible due to how 
+      # Set#subtract and ActiveRecord::Core#== work internally, ActiveRecord lazily syncs
+      # transaction state after rollback, which may change in-memory state of key objects,
+      # which requires that the hash be rekeyed.
+      def remove_unpersisted_records!
+        @records.each do |attr, set|
+          set.each(&:persisted?)
+          rehash set
+          set.keep_if(&:persisted?)
+          @records.delete(attr) if set.empty?
+        end
+      end
+
+      private
+
+      # The Set class identifies uniqueness using the result of each object's #hash method.
+      # If an object is modified after added to the Set, its hash value may change, so the Set needs to be "rehashed".
+      # Prior to Ruby 2.5, Set object does not support a public api to rehash the objects in its collection,
+      # but it is publicly documented that the class uses an underlying Hash for its collection, which does support
+      # a #rehash operation.
+      # This method abstracts the difference, allowing rehashing of the set for pre-2.5 Ruby while preventing future
+      # implementations from breaking this library by changing the internal implementation of hash, preferring to rely
+      # on the now-public #reset method
+      def rehash(set)
+        if set.respond_to?(:reset)
+          set.reset
+        else
+          set.instance_variable_get(:@hash).rehash
+        end
+      end
     end
   end
 end
