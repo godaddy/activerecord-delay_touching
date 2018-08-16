@@ -33,8 +33,13 @@ module ActiveRecord
         @records.map { |attrs, records| [attrs, records.group_by(&:class)] }
       end
 
+      # There are more records as long as there is at least one record that is persisted
       def more_records?
-        @records.present?
+        @records.each do |_, set|
+          set.each { |record| return true if record.persisted? } # will shortcut on first persisted record found
+        end
+
+        false # no persisted records found, so no more records to process
       end
 
       def add_record(record, *columns)
@@ -47,19 +52,6 @@ module ActiveRecord
       def clear_records
         @records.clear
         @already_updated_records.clear
-      end
-
-      # If we don't do this then an infinite loop is possible due to how 
-      # Set#subtract and ActiveRecord::Core#== work internally, ActiveRecord lazily syncs
-      # transaction state after rollback, which may change in-memory state of key objects,
-      # which requires that the hash be rekeyed.
-      def remove_unpersisted_records!
-        @records.each do |attr, set|
-          set.each(&:persisted?)
-          set.instance_variable_get(:@hash).rehash
-          set.keep_if(&:persisted?)
-          @records.delete attr if set.empty?
-        end
       end
     end
   end
