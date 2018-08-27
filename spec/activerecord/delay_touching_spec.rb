@@ -195,6 +195,24 @@ describe Activerecord::DelayTouching do
 
     end
 
+    it 'does not attempt to update is NULL primary key' do
+      bad_update = /UPDATE "tags" SET "updated_at" = .* WHERE "tags"\."id" IS NULL/
+      expect(ActiveRecord::Base.connection).to receive(:update).and_wrap_original do |m, *args|
+        arel_stmt = args.first
+        expect(arel_stmt.to_sql).to_not match(bad_update)
+        m.call(*args)
+      end
+
+      ActiveRecord::Base.delay_touching do
+        ActiveRecord::Base.transaction do
+          # touch any record through a custom relationship table
+          # NOTE: does not happen with a has_and_belongs_to_many relationship
+          post = Post.create!
+          post.tags.create!
+          raise ActiveRecord::Rollback
+        end
+      end
+    end
   end
 
   def expect_updates(tables)

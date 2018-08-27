@@ -30,4 +30,12 @@ ActiveRecord::Schema.define do
     t.timestamps null: false
   end
 
+  create_table :tags, force: true do |t|
+    t.timestamps null: false
+  end
+
+  create_table :tag_relationships, force: true do |t|
+    t.integer :tag_id
+    t.integer :post_id
+  end
 end

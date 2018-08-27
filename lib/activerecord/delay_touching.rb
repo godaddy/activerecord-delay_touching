@@ -95,7 +95,7 @@ module ActiveRecord
           end
         end
 
-        klass.unscoped.where(klass.primary_key => records).update_all(changes)
+        klass.unscoped.where(klass.primary_key => records.select(&:persisted?)).update_all(changes)
       end
       state.updated attr, records
       records.each { |record| record.run_callbacks(:touch) }
