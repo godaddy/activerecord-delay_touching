@@ -6,12 +6,14 @@ module ActiveRecord
     extend ActiveSupport::Concern
 
     # Override ActiveRecord::Base#touch.
-    def touch(*names)
-      if self.class.delay_touching? && !try(:no_touching?)
-        DelayTouching.add_record(self, *names)
-        true
-      else
-        super
+    if ActiveRecord::VERSION::MAJOR >= 5
+      def touch(*names, time: nil)
+        names = self.class.send(:timestamp_attributes_for_update_in_model) if names.empty?
+        DelayTouching.handle_touch(self, names) || super
+      end
+    else
+      def touch(*names)
+        DelayTouching.handle_touch(self, names) || super
       end
     end
 
@@ -43,6 +45,13 @@ module ActiveRecord
 
     class << self
       delegate :add_record, to: :state
+    end
+
+    def self.handle_touch(record, names)
+      if record.class.delay_touching? && !record.try(:no_touching?)
+        add_record(record, *names)
+        true
+      end
     end
 
     # Start delaying all touches. When done, apply them. (Unless nested.)
@@ -88,10 +97,8 @@ module ActiveRecord
           records.each do |record|
             # Don't bother if destroyed or not-saved
             next unless record.persisted?
-            record.instance_eval do
-              write_attribute column, current_time
-              @changed_attributes.except!(*changes.keys)
-            end
+            record.send(:write_attribute, column, current_time)
+            clear_attribute_changes(record, changes.keys)
           end
         end
 
@@ -99,6 +106,16 @@ module ActiveRecord
       end
       state.updated attr, records
       records.each { |record| record.run_callbacks(:touch) }
+    end
+
+    if ActiveRecord::VERSION::MAJOR >= 5
+      def self.clear_attribute_changes(record, attr_names)
+        record.clear_attribute_changes(attr_names)
+      end
+    else
+      def self.clear_attribute_changes(record, attr_names)
+        record.instance_variable_get('@changed_attributes').except!(*attr_names)
+      end
     end
   end
 end
