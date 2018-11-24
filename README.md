@@ -1,6 +1,6 @@
 # Activerecord::DelayTouching
 
-> **Note:** this version requires ActiveRecord 4.2 or higher. To use ActiveRecord 3.2 through 4.1, use the branch https://github.com/godaddy/activerecord-delay_touching/tree/pre-activerecord-4.2.
+> **Note:** this version requires ActiveRecord 4.2 or higher. To use ActiveRecord 3.2 through 4.1, use the branch https://github.com/Kenneth-KT/activerecord-delay_touching/tree/pre-activerecord-4.2.
 
 Batch up your ActiveRecord "touch" operations for better performance.
 
@@ -15,7 +15,7 @@ round-trips as possible. Instead of N touches you get 1 touch.
 
 Add this line to your application's Gemfile:
 
-    gem 'activerecord-delay_touching'
+    gem 'activerecord5_delay_touching'
 
 And then execute:
 
@@ -23,7 +23,7 @@ And then execute:
 
 Or install it yourself:
 
-    $ gem install activerecord-delay_touching
+    $ gem install activerecord5_delay_touching
 
 ## Usage
 
@@ -103,7 +103,7 @@ Things to note:
 
 ## Contributing
 
-1. Fork it ( https://github.com/godaddy/activerecord-delay_touching/fork )
+1. Fork it ( https://github.com/Kenneth-KT/activerecord-delay_touching/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
