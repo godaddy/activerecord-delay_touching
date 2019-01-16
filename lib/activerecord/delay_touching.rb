@@ -14,7 +14,7 @@ module ActiveRecord
           self
         end
 
-        names = self.class.send(:timestamp_attributes_for_update_in_model) if names.empty?
+        names = record_class.send(:timestamp_attributes_for_update_in_model) if names.empty?
         DelayTouching.handle_touch(self, names) || super
       end
     else
