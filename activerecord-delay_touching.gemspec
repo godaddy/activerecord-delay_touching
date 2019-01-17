@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'activerecord/delay_touching/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "activerecord5_delay_touching"
+  spec.name          = "activerecord-delay_touching"
   spec.version       = Activerecord::DelayTouching::VERSION
   spec.authors       = ["GoDaddy P&C Commerce", "Brian Morearty"]
   spec.email         = ["nemo-engg@godaddy.com", "brian@morearty.org"]
