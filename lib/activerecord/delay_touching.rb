@@ -8,13 +8,7 @@ module ActiveRecord
     # Override ActiveRecord::Base#touch.
     if ActiveRecord::VERSION::MAJOR >= 5
       def touch(*names, time: nil)
-        record_class = if self.class.respond_to?(:timestamp_attributes_for_update_in_model)
-          self.class
-        else
-          self
-        end
-
-        names = record_class.send(:timestamp_attributes_for_update_in_model) if names.empty?
+        names = self.send(:timestamp_attributes_for_update_in_model) if names.empty?
         DelayTouching.handle_touch(self, names) || super
       end
     else
