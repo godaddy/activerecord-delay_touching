@@ -6,6 +6,7 @@ module ActiveRecord
     extend ActiveSupport::Concern
 
     # Override ActiveRecord::Base#touch.
+    # see https://github.com/godaddy/activerecord-delay_touching/pull/21 for Rails 5 support
     def touch(*names, time: nil)
       if self.class.delay_touching? && !try(:no_touching?)
         DelayTouching.add_record(self, *names)
