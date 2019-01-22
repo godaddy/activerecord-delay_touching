@@ -6,14 +6,12 @@ module ActiveRecord
     extend ActiveSupport::Concern
 
     # Override ActiveRecord::Base#touch.
-    if ActiveRecord::VERSION::MAJOR >= 5
-      def touch(*names, time: nil)
-        names = self.send(:timestamp_attributes_for_update_in_model) if names.empty?
-        DelayTouching.handle_touch(self, names) || super
-      end
-    else
-      def touch(*names)
-        DelayTouching.handle_touch(self, names) || super
+    def touch(*names, time: nil)
+      if self.class.delay_touching? && !try(:no_touching?)
+        DelayTouching.add_record(self, *names)
+        true
+      else
+        super
       end
     end
 
@@ -45,13 +43,6 @@ module ActiveRecord
 
     class << self
       delegate :add_record, to: :state
-    end
-
-    def self.handle_touch(record, names)
-      if record.class.delay_touching? && !record.try(:no_touching?)
-        add_record(record, *names)
-        true
-      end
     end
 
     # Start delaying all touches. When done, apply them. (Unless nested.)
