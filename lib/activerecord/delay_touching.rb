@@ -76,8 +76,13 @@ module ActiveRecord
 
     # Touch the specified records--non-empty set of instances of the same class.
     def self.touch_records(attr, klass, records)
-      attributes = records.first.send(:timestamp_attributes_for_update_in_model)
+      # Although we're now setting the default timestamp column upstream, we'll still want to grab the default attributes here.
+      # Doing so allows us to batch updates to non-standard columns along with the defaults in one query.
+      # Note: timestamp_attributes_for_create_in_model gets frozen before returning in ActiveRecord version 6+
+      frozen_attributes = records.first.send(:timestamp_attributes_for_update_in_model)
+      attributes = frozen_attributes.dup
       attributes << attr if attr
+      attributes.to_set
 
       if attributes.present?
         current_time = records.first.send(:current_time_from_proper_timezone)

@@ -43,9 +43,13 @@ module ActiveRecord
       end
 
       def add_record(record, *columns)
-        columns << nil if columns.empty? #if no arguments are passed, we will use nil to infer default column
+        # Inferring nil for touch calls with no column specified is creating duplicate DB calls for nested records
+        # Grab the default timestamp columns now as opposed to at write time
+        columns = record.send(:timestamp_attributes_for_update_in_model) if columns.blank?
+
         columns.each do |column|
-          @records[column] += [ record ] unless @already_updated_records[column].include?(record)
+          # Convert column explicitly to string here to keep types consistent
+          @records[column.to_s] += [ record ] unless @already_updated_records[column].include?(record)
         end
       end
 
