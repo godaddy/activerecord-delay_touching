@@ -6,7 +6,8 @@ module ActiveRecord
     extend ActiveSupport::Concern
 
     # Override ActiveRecord::Base#touch.
-    def touch(*names)
+    # see https://github.com/godaddy/activerecord-delay_touching/pull/21 for Rails 5 support
+    def touch(*names, time: nil)
       if self.class.delay_touching? && !try(:no_touching?)
         DelayTouching.add_record(self, *names)
         true
@@ -88,10 +89,8 @@ module ActiveRecord
           records.each do |record|
             # Don't bother if destroyed or not-saved
             next unless record.persisted?
-            record.instance_eval do
-              write_attribute column, current_time
-              @changed_attributes.except!(*changes.keys)
-            end
+            record.send(:write_attribute, column, current_time)
+            clear_attribute_changes(record, changes.keys)
           end
         end
 
@@ -99,6 +98,16 @@ module ActiveRecord
       end
       state.updated attr, records
       records.each { |record| record.run_callbacks(:touch) }
+    end
+
+    if ActiveRecord::VERSION::MAJOR >= 5
+      def self.clear_attribute_changes(record, attr_names)
+        record.clear_attribute_changes(attr_names)
+      end
+    else
+      def self.clear_attribute_changes(record, attr_names)
+        record.instance_variable_get('@changed_attributes').except!(*attr_names)
+      end
     end
   end
 end
